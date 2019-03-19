@@ -6,7 +6,17 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>Offline qip report</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <style>
+            .error-no-data {
+                background-color: red !important;
+                color: #ffffff !important;
+            }
 
+            .text-align-left {
+                text-align: left !important;
+            }
+        </style>
     </head>
 
     <body>
@@ -52,17 +62,8 @@
         <div id="datatable" style="display:none">
             <h4><b>Facility:</b> <span id="facilityName"></span>&nbsp;&nbsp;<b>Period:</b> <span id="period"></span></h4>
             <table id="xlsdownload" class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>Section</th>
-                        <th>#</th>
-                        <th>Activities to be implemented(QIP's)</th>
-                        <th>Improvement Guide</th>
-                        <th>Responsible Person</th>
-                        <th>Timeframe</th>
-                        <th>Budget Involved</th>
-                        <th>Comments</th>
-                    </tr>
+                <thead id="sectionTitleToBeRendered">
+
                 </thead>
                 <tbody id="sectionDataToBeRendered">
 
@@ -5370,22 +5371,75 @@
                                                             dataRow.push(qipMapperData.comment);
                                                             //adding values for rows for qip report
                                                             dataRows.push(dataRow);
+                                                            
+                                                            
                                                         }
                                                     }
                                                 }
                                             }
                                         });
                                         // append data rows on table
-                                        var htmlData = "";
-                                        dataRows.map(function (dataRow) {
-                                            htmlData += "<tr>"
-                                            dataRow.map(function (value) {
-                                                htmlData += `<td>${value}</td>`
-                                            });
-                                            htmlData += "</tr>"
-                                        });
 
-                                        $("#sectionDataToBeRendered").append(htmlData);
+                                        if (dataRows.length <= 0) {
+                                            var notificationMessage = "";
+                                            notificationMessage += "<tr class=\"error-no-data\">";
+                                            notificationMessage += "<th colspan='2'>No Offline Data For Selected Facility &#x21;</th>";
+                                            notificationMessage += "</tr>";
+                                            notificationMessage += "<tr>";
+                                            notificationMessage += "<td colspan=\"2\" class=\"text-align-left\">Hello User, Please follow the following procedure to download data from the internet</td>";
+                                            notificationMessage += "</tr>";
+                                            notificationMessage += "<tr>";
+                                            notificationMessage += "<td>1</td>";
+                                            notificationMessage += "<td class=\"text-align-left\">Make sure your device is connected to the internet(Switch ON Data)</td>";
+                                            notificationMessage += "</tr>";
+                                            notificationMessage += "<tr>";
+                                            notificationMessage += "<td>2</td>";
+                                            notificationMessage += "<td class=\"text-align-left\">From Report, Go to <b>APPS</b></td>";
+                                            notificationMessage += "</tr>";
+                                            notificationMessage += "<td>3</td>";
+                                            notificationMessage += "<td class=\"text-align-left\">Then Go To <b style=\"color: red;\">Data Entry</b> (Click Data Entry)</td>";
+                                            notificationMessage += "</tr>";
+                                            notificationMessage += "<td>4</td>";
+                                            notificationMessage += "<td class=\"text-align-left\">Then Select Organization Unit e.g <b>Canaanland Dispensary</b> for data to be offline, then select form i.e <b>BRN_Dispensary Scoring</b> and Specific Period e.g <b>2018</b></td>";
+                                            notificationMessage += "</tr>";
+                                            notificationMessage += "<td>5</td>";
+                                            notificationMessage += "<td class=\"text-align-left\">After finishing click <b><i>Enter Data</i></b></td>";
+                                            notificationMessage += "</tr>";
+                                            notificationMessage += "<td>6</td>";
+                                            notificationMessage += "<td class=\"text-align-left\">Then after that wait for few minutes, you will receive the notification that downloaded successfully.</td>";
+                                            notificationMessage += "</tr>";
+                                            notificationMessage += "<td>7</td>";
+                                            notificationMessage += "<td class=\"text-align-left\">Finally you can switch off the data and proceed with QIP Offline for all your activities. <b style=\"color: green;\">Thank you</b>.</td>";
+                                            notificationMessage += "</tr>";
+                                            $("#sectionDataToBeRendered").append(notificationMessage);
+                                        } else {
+                                            var htmlData = "";
+                                            var htmlTitle = "";
+                                            htmlTitle += "<tr>";
+                                            htmlTitle += "<th class=\"text-align-left\">Section</thc>";
+                                            htmlTitle += "<th class=\"text-align-left\">#</th>";
+                                            htmlTitle += "<th class=\"text-align-left\">Activities to be implemented(QIP's)</th>";
+                                            htmlTitle += "<th class=\"text-align-left\">Improvement Guide</th>";
+                                            htmlTitle += "<th class=\"text-align-left\">Responsible Person</th>";
+                                            htmlTitle += "<th class=\"text-align-left\">Timeframe</th>";
+                                            htmlTitle += "<th class=\"text-align-left\">Budget Involved</th>";
+                                            htmlTitle += "<th class=\"text-align-left\">Comments</th>";
+                                            htmlTitle += "</tr>";
+                                            
+                                            dataRows.map(function (dataRow) {
+                                                htmlData += "<tr>"
+                                                dataRow.map(function (value) {
+                                                    htmlData += `<td>${value}</td>`
+                                                });
+                                                htmlData += "</tr>"
+                                            });
+
+                                            $("#sectionTitleToBeRendered").append(htmlTitle);
+                                            $("#sectionDataToBeRendered").append(htmlData);
+                                            console.log("DATA ARE FOUND IN THE LOCAL DATABASE");
+                                        }
+
+                                        
                                         setTimeout(() => {
                                             $("#loader").hide();
                                             $("#datatable").show();
