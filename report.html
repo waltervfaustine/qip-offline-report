@@ -16,6 +16,19 @@
             .text-align-left {
                 text-align: left !important;
             }
+
+            .text-align-center {
+                text-align: center !important;
+            }
+
+            .qip-heading {
+                background-color: #99B8FF !important;
+            }
+
+            .qip-table-title {
+                background-color: #013ab5 !important;
+                color: #ffffff !important;
+            }
         </style>
     </head>
 
@@ -5299,6 +5312,22 @@
             var validValueForQip = ["no", "partial"]; // all should be in small leter
             var qipMapper;
             var dataRows = [] // for filtered rows
+            var areaNames = [
+                "AREA 0: DEFAULT AREA NAME",
+                "AREA 1: LEGALITY – LICENSING AND CERTIFICATION",
+                "AREA 2: HEALTH FACILITY MANAGEMENT",
+                "AREA 3: USE OF FACILITY DATA FOR PLANNING AND SERVICE IMPROVEMENT",
+                "AREA 4: STAFF PERFORMANCE ASSESSMENT",
+                "AREA 5: ORGANISATION OF SERVICES",
+                "AREA 6: HANDLING EMERGENCIES AND REFERRAL",
+                "AREA 7: CLIENT FOCUS",
+                "AREA 8: SOCIAL ACCOUNTABILITY",
+                "AREA 9: FACILITY INFRASTRUCTURE",
+                "AREA 10: INFECTION PREVENTION AND CONTROL",
+                "AREA 11: CLINICAL SERVICES",
+                "AREA 12: CLINICAL SUPPORT SERVICES"
+            ];
+
             if (window && window.cordova) {
                 //deduce datasetId, period and organisationUnitId for data retrival, data element ids
                 var facilityTypeDatsetId = getFacilityTypeAndDataSetIds(dhis2.report.dataSets);
@@ -5370,6 +5399,7 @@
                                                             dataRow.push(qipMapperData.budget);
                                                             dataRow.push(qipMapperData.comment);
                                                             //adding values for rows for qip report
+                                                            console.log("DATA ROW: " + JSON.stringify(dataRow))
                                                             dataRows.push(dataRow);
                                                             
                                                             
@@ -5415,28 +5445,60 @@
                                         } else {
                                             var htmlData = "";
                                             var htmlTitle = "";
-                                            htmlTitle += "<tr>";
-                                            htmlTitle += "<th class=\"text-align-left\">Section</thc>";
-                                            htmlTitle += "<th class=\"text-align-left\">#</th>";
-                                            htmlTitle += "<th class=\"text-align-left\">Activities to be implemented(QIP's)</th>";
-                                            htmlTitle += "<th class=\"text-align-left\">Improvement Guide</th>";
-                                            htmlTitle += "<th class=\"text-align-left\">Responsible Person</th>";
-                                            htmlTitle += "<th class=\"text-align-left\">Timeframe</th>";
-                                            htmlTitle += "<th class=\"text-align-left\">Budget Involved</th>";
-                                            htmlTitle += "<th class=\"text-align-left\">Comments</th>";
-                                            htmlTitle += "</tr>";
+                                            htmlTitle += `<tr class="qip-table-title">`;
+                                            htmlTitle += `<th class="text-align-center">Section</thc>`;
+                                            htmlTitle += `<th class="text-align-center">#</th>`;
+                                            htmlTitle += `<th class="text-align-center">Activities to be implemented(QIP's)</th>`;
+                                            htmlTitle += `<th class="text-align-center">Improvement Guide</th>`;
+                                            htmlTitle += `<th class="text-align-center">Responsible Person</th>`;
+                                            htmlTitle += `<th class="text-align-center">Timeframe</th>`;
+                                            htmlTitle += `<th class="text-align-center">Budget Involved</th>`;
+                                            htmlTitle += `<th class="text-align-center">Comments</th>`;
+                                            htmlTitle += `</tr>`;
+
+                                            var arrayCheckerIndex = [];
                                             
                                             dataRows.map(function (dataRow) {
-                                                htmlData += "<tr>"
-                                                dataRow.map(function (value) {
-                                                    htmlData += `<td class="text-align-left">${value}</td>`
-                                                });
-                                                htmlData += "</tr>"
+                                                var regexOmega = /[0-9]{2}([.][0-9]{1})([.][0-9]{1})/g;
+                                                var regexAlpha = /[0-9]{1}([.][0-9]{1})([.][0-9]{1})/g;
+
+                                                if (dataRow[0].match(regexOmega)) {
+                                                    if (arrayCheckerIndex.includes(dataRow[0].substring(0,2))) {
+                                                        htmlData += "<tr>"
+                                                        dataRow.map(function (value) {
+                                                            htmlData += `<td class="text-align-left">${value}</td>`
+                                                        });
+                                                        htmlData += "</tr>";
+                                                    } else {
+                                                        arrayCheckerIndex.push(dataRow[0].substring(0,2));
+                                                        htmlData += `<tr class="qip-heading"><th colspan="8"> ${ areaNames[parseInt(dataRow[0].substring(0,2))] } </th></tr>`;
+                                                        htmlData += "<tr>"
+                                                        dataRow.map(function (value) {
+                                                            htmlData += `<td class="text-align-left">${value}</td>`
+                                                        });
+                                                        htmlData += "</tr>";
+                                                    }
+                                                } else if(dataRow[0].match(regexAlpha)) {
+                                                    if (arrayCheckerIndex.includes(dataRow[0].substring(0,1))) {
+                                                        htmlData += "<tr>"
+                                                        dataRow.map(function (value) {
+                                                            htmlData += `<td class="text-align-left">${value}</td>`
+                                                        });
+                                                        htmlData += "</tr>";
+                                                    } else {
+                                                        arrayCheckerIndex.push(dataRow[0].substring(0,1));
+                                                        htmlData += `<tr class="qip-heading"><th colspan="8"> ${ areaNames[parseInt(dataRow[0].substring(0,1))] } </th></tr>`;
+                                                        htmlData += "<tr>"
+                                                        dataRow.map(function (value) {
+                                                            htmlData += `<td class="text-align-left">${value}</td>`
+                                                        });
+                                                        htmlData += "</tr>";
+                                                    }
+                                                }
                                             });
 
                                             $("#sectionTitleToBeRendered").append(htmlTitle);
                                             $("#sectionDataToBeRendered").append(htmlData);
-                                            console.log("DATA ARE FOUND IN THE LOCAL DATABASE");
                                         }
 
                                         
@@ -5523,5 +5585,4 @@
             }
         </script>
     </body>
-
 </html>
